@@ -11,6 +11,7 @@ import com.lukasdev.lanchonete.Enums.statusEnum;
 import com.lukasdev.lanchonete.Exceptions.ItemPedidoNaoEncontradoException;
 import com.lukasdev.lanchonete.Exceptions.PedidoNaoEncontradoException;
 import com.lukasdev.lanchonete.Exceptions.ProdutoNaoEncontradoException;
+import com.lukasdev.lanchonete.Mapper.ItemPedidoMapper;
 import com.lukasdev.lanchonete.Repositories.ItemPedidoRepository;
 import com.lukasdev.lanchonete.Repositories.PedidoRepository;
 import com.lukasdev.lanchonete.Repositories.ProdutoRepository;
@@ -50,7 +51,7 @@ public class ItemPedidoService {
         }
 
         // Crio o Objeto do Tipo ItemPedido
-        ItemPedido novoItemPedido = new ItemPedido();
+        ItemPedido novoItemPedido = ItemPedidoMapper.toEntity(request, pedido, produto);
 
         // crio uma variavel do tipo Big decimal chamado subtotal , deve usar o metodo multiply pegando o atributo valor do objeto a cima e multiplicar pela quantidade do itempedido
         BigDecimal subtotal = produto.getValor().multiply(BigDecimal.valueOf(request.getQuantidade()));
@@ -59,29 +60,12 @@ public class ItemPedidoService {
         // em seguida setar o total do pedido pegando o novototal como valor
         pedido.setTotal(novoTotal);
 
-
-        //Seto o Objeto com os atributos "produto, pedido , quantidade" do request a cima
-        novoItemPedido.setPedido(pedido);
-        novoItemPedido.setProduto(produto);
-        novoItemPedido.setQuantidade(request.getQuantidade());
-        novoItemPedido.setSubtotal(subtotal);
-
         // salvo o item usando repository do itempedido
         itemPedidoRepository.save(novoItemPedido);
         // salvo o pedido usando o repository do pedido
         pedidoRepository.save(pedido);
-        // crio um objeto response do tipo Item pedido
-        ItemPedidoResponse response = new ItemPedidoResponse();
-        // seto esse response usando os campos do itemid , produnome, quantidade , subtotal
-        response.setSubtotal(subtotal);
-        response.setProdutoNome(produto.getNome());
-        response.setQuantidade(novoItemPedido.getQuantidade());
-        response.setId(novoItemPedido.getId());
-        response.setPedidoId(pedido.getId());
 
-        // retorno esse resposne
-        return response;
-
+        return ItemPedidoMapper.toResponse(novoItemPedido);
     }
 
     public List<ItemPedidoResponse> listarTodos() {
@@ -92,15 +76,7 @@ public class ItemPedidoService {
 
         for (ItemPedido itemPedido : itemPedidolist) {
 
-            ItemPedidoResponse response = new ItemPedidoResponse();
-
-            response.setId(itemPedido.getId());
-            response.setProdutoNome(itemPedido.getProduto().getNome());
-            response.setQuantidade(itemPedido.getQuantidade());
-            response.setSubtotal(itemPedido.getSubtotal());
-            response.setPedidoId(itemPedido.getId());
-
-            responseList.add(response);
+            responseList.add(ItemPedidoMapper.toResponse(itemPedido));
         }
 
         return responseList;
@@ -112,17 +88,7 @@ public class ItemPedidoService {
         ItemPedido itemPedidobusca = itemPedidoRepository.findById(id).orElseThrow(() ->
                 new ItemPedidoNaoEncontradoException(id));
 
-        ItemPedidoResponse response = new ItemPedidoResponse();
-
-        response.setPedidoId(itemPedidobusca.getPedido().getId());
-        response.setId(itemPedidobusca.getId());
-        response.setQuantidade(itemPedidobusca.getQuantidade());
-        response.setProdutoNome(itemPedidobusca.getProduto().getNome());
-        response.setSubtotal(itemPedidobusca.getSubtotal());
-        response.setSubtotal(itemPedidobusca.getSubtotal());
-
-        return response;
-
+        return ItemPedidoMapper.toResponse(itemPedidobusca);
     }
 
     public ItemPedidoResponse atualizarPorId(Long Id, int quantidade) {
@@ -145,7 +111,7 @@ public class ItemPedidoService {
 
         BigDecimal total = BigDecimal.ZERO;
 
-        for(ItemPedido iten : itens){
+        for (ItemPedido iten : itens) {
 
             total = total.add(iten.getSubtotal());
         }
@@ -154,16 +120,8 @@ public class ItemPedidoService {
 
         pedidoRepository.save(pedido);
 
-        ItemPedidoResponse response = new ItemPedidoResponse();
+       return ItemPedidoMapper.toResponse(itemPedido);
 
-        response.setId(itemPedido.getId());
-        response.setPedidoId(itemPedido.getPedido().getId());
-        response.setProdutoNome(itemPedido.getProduto().getNome());
-        response.setQuantidade(itemPedido.getQuantidade());
-        response.setSubtotal(itemPedido.getSubtotal());
-
-        return response;
-        
     }
 
     public void deletarItempedido(long id) {

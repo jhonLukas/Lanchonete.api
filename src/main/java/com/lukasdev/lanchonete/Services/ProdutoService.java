@@ -5,6 +5,7 @@ import com.lukasdev.lanchonete.Dto.ResponseDto.ProdutoResponse;
 import com.lukasdev.lanchonete.Dto.ResquestDto.ProdutoRequest;
 import com.lukasdev.lanchonete.Entities.Produto;
 import com.lukasdev.lanchonete.Exceptions.ProdutoNaoEncontradoException;
+import com.lukasdev.lanchonete.Mapper.ProdutoMapper;
 import com.lukasdev.lanchonete.Repositories.ProdutoRepository;
 import org.springframework.stereotype.Service;
 
@@ -26,23 +27,13 @@ public class ProdutoService {
     //Metodo Cria produto , recebe um Produto Request como parametro
     public ProdutoResponse criarProduto(ProdutoRequest request) {
 
-        //crio um Objeto do tipo Produto e inicializo
-        Produto novoProduto = new Produto();
-        // Seto o objeto com os atributos do request passado pelo usuario
-        novoProduto.setNome(request.getNome());
-        novoProduto.setValor(request.getValor());
+        //Uso a classe ProdutoMapper para transformar o request em um objeto
+        Produto novoProduto = ProdutoMapper.toEntity(request);
 
         // salvo o novo produto usando o repository injetado
         repository.save(novoProduto);
-        // crio um objeto do tipo ProdutoResponse e inicializo
-        ProdutoResponse response = new ProdutoResponse();
-        // seto os seus atributos usando os atributos que foram salvos no objeto do tipo Produto
-        response.setNome(novoProduto.getNome());
-        response.setValor(novoProduto.getValor());
-        response.setId(novoProduto.getId());
-
-        //retorna o objeto produto response ja que o metodo e do mesmo tipo
-        return response;
+        //Uso a classe ProdutoMapper para transformar a entidade em um response
+        return ProdutoMapper.toResponse(novoProduto);
 
     }
 
@@ -55,14 +46,7 @@ public class ProdutoService {
         //faço um for criando uma variavel do tipo produto chamada produto ,que vai pecorrer todos os  produtos
         for (Produto produto : produtos) {
             //Crio uma variavel response do tipo Produto response e inicializo
-            ProdutoResponse response = new ProdutoResponse();
-            // em seguida seto esse response com os atributos do produto
-            response.setValor(produto.getValor());
-            response.setId(produto.getId());
-            response.setNome(produto.getNome());
-            //adiciono esse response na lista de responses
-            responses.add(response);
-
+            ProdutoMapper.toResponse(produto);
         }
         //retorno essa lista de responses
         return responses;
@@ -74,29 +58,7 @@ public class ProdutoService {
 
                 new ProdutoNaoEncontradoException(id));
 
-        ProdutoResponse response = new ProdutoResponse();
-
-        response.setId(produto.getId());
-        response.setNome(produto.getNome());
-        response.setValor(produto.getValor());
-
-        return response;
-    }
-
-    public ProdutoResponse deletarProduto(Long id) {
-
-        Produto produto = repository.findById(id).orElseThrow(() ->
-                new ProdutoNaoEncontradoException(id));
-
-        repository.delete(produto);
-
-        ProdutoResponse response = new ProdutoResponse();
-
-        response.setId(produto.getId());
-        response.setNome(produto.getNome());
-        response.setValor(produto.getValor());
-
-        return response;
+        return ProdutoMapper.toResponse(produto);
 
     }
 
@@ -110,13 +72,16 @@ public class ProdutoService {
 
         repository.save(produto);
 
-        ProdutoResponse response = new ProdutoResponse();
+        return ProdutoMapper.toResponse(produto);
 
-        response.setId(produto.getId());
-        response.setValor(produto.getValor());
-        response.setNome(produto.getNome());
+    }
 
-        return response;
+    public void deletarProduto(Long id) {
+
+        Produto produto = repository.findById(id).orElseThrow(() ->
+                new ProdutoNaoEncontradoException(id));
+
+        repository.delete(produto);
 
     }
 
