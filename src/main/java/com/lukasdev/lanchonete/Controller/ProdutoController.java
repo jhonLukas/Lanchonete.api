@@ -4,6 +4,8 @@ import com.lukasdev.lanchonete.Dto.ResponseDto.ProdutoResponse;
 import com.lukasdev.lanchonete.Dto.ResquestDto.PedidoRequest;
 import com.lukasdev.lanchonete.Dto.ResquestDto.ProdutoRequest;
 import com.lukasdev.lanchonete.Services.ProdutoService;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
 import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -22,6 +24,10 @@ public class ProdutoController {
     }
 
 
+    @Operation(
+            summary = "Criar produto",
+            description = "Metodo utilizado para criar um novo produto "
+    )
     @PostMapping
     public ResponseEntity<ProdutoResponse> create(@Valid @RequestBody ProdutoRequest request) {
 
@@ -31,6 +37,11 @@ public class ProdutoController {
 
     }
 
+
+    @Operation(
+            summary = "Listar todos os produtos",
+            description = "Retorna uma lista de todos os produtos cadastrados"
+    )
     @GetMapping
     public ResponseEntity<List<ProdutoResponse>> findAll() {
 
@@ -38,12 +49,23 @@ public class ProdutoController {
 
     }
 
+    @Operation(
+            summary = "Obter produto pelo seu ID",
+            description = "Retorna um produto desejado usando seu ID")
+
     @GetMapping("/{id}")
-    public ResponseEntity<ProdutoResponse> findById(@PathVariable("id") Long requestId) {
+    public ResponseEntity<ProdutoResponse> findById(
+
+            @Parameter(description = "Identificador único do produto")
+            @PathVariable("id") Long requestId) {
 
         return ResponseEntity.ok(service.buscarPorId(requestId));
 
     }
+
+    @Operation(
+            summary = "Excluir produto",
+            description = "Deleta um produto atraves de seu ID")
 
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteById(@PathVariable("id") Long requestId) {
@@ -54,9 +76,16 @@ public class ProdutoController {
 
     }
 
+    @Operation(
+            summary = "Atualiza Produto",
+            description = "Atualiza um produto atraves de seu ID"
+    )
     @PutMapping("/{id}")
-    public ResponseEntity<ProdutoResponse> updateById(@PathVariable("id") Long requestId,
-                                                      @Valid @RequestBody ProdutoRequest request) {
+    public ResponseEntity<ProdutoResponse> updateById(
+
+            @Parameter(description = "Identificador único do produto")
+            @PathVariable("id") Long requestId,
+            @Valid @RequestBody ProdutoRequest request) {
 
         return ResponseEntity.ok(service.atualizarProduto(requestId, request));
 

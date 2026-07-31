@@ -45,8 +45,8 @@ public class ProdutoService {
         List<ProdutoResponse> responses = new ArrayList<>();
         //faço um for criando uma variavel do tipo produto chamada produto ,que vai pecorrer todos os  produtos
         for (Produto produto : produtos) {
-            //Crio uma variavel response do tipo Produto response e inicializo
-            ProdutoMapper.toResponse(produto);
+
+            responses.add(  ProdutoMapper.toResponse(produto));
         }
         //retorno essa lista de responses
         return responses;

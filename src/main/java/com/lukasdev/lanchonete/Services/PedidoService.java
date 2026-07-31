@@ -48,7 +48,7 @@ public class PedidoService {
 
         for (Pedido pedido : pedidos) {
 
-            PedidoMapper.toResponse(pedido);
+            responses.add(PedidoMapper.toResponse(pedido));
         }
 
         return responses;
